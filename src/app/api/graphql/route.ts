@@ -1,39 +1,27 @@
 import { startServerAndCreateNextHandler } from '@as-integrations/next';
 import { ApolloServer } from '@apollo/server';
-import { gql } from 'graphql-tag';
-import UserModal from '@/models/user';
-import dbConnect from '@/lib/connectDB';
+import resolvers from './resolvers';
+import typeDefs from './typedefs';
+import { ContextUser } from '@/@types/user';
+import { NextApiResponse } from 'next';
+import { cookies } from 'next/headers';
 
-const resolvers = {
-  Query: {
-    users: async () => {
-      try {
-        await dbConnect();
-        const users = await UserModal.find({});
-        return users
-      } catch (error) {
-        console.log(error);
-      }
-    }
-  },
-};
-
-const typeDefs = gql`
-  type Query {
-    users: [User]
-  },
-  type User {
-    email: String
-    username: String
-    _id: String
-  }
-`;
-
-const server = new ApolloServer({
+export type MyContext = {
+  user: ContextUser | null
+  res: NextApiResponse
+}
+const server = new ApolloServer<MyContext>({
   resolvers,
   typeDefs,
 });
 
-const handler = startServerAndCreateNextHandler(server);
+const handler = startServerAndCreateNextHandler(server, {
+  context: async (req, res) => {
+    const cookie = cookies().get("token");
+    const token = cookie ? cookie.value : null;
+    console.log("token", token);
+    return { user: null, res }
+  },
+});
 
 export { handler as GET, handler as POST };

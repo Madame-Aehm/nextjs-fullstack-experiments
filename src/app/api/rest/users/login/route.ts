@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Password doesn't match" }, { status: 405 });
     }
     const token = generateToken(user);
-    return NextResponse.json({ user, token }, { status: 200 });
+    return NextResponse.json(user, { status: 200, headers: { "Set-Cookie": `token=${token}` } });
   } catch (error) {
     return NextResponse.error();
   }

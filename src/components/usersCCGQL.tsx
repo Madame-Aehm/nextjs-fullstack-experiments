@@ -1,7 +1,6 @@
 "use client"
 import { User } from '@/@types/user';
-import { useQuery } from '@apollo/client';
-import gql from 'graphql-tag';
+import { useQuery, gql } from '@apollo/client';
 import React from 'react'
 
 type Data = {
