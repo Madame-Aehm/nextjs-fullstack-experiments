@@ -4,12 +4,18 @@ const typeDefs = `#graphql
   }
   type Mutation {
     signUp(signUpValues: signUpValues!): User
+    updateProfile(updatableValues: updatableValues!): User
     login(loginValues: loginValues!): User
   }
   input signUpValues {
     email: String!
     password: String!
     username: String!
+  }
+  input updatableValues {
+    email: String
+    username: String
+    password: String
   }
   input loginValues {
     email: String!

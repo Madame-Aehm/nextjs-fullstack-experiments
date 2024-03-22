@@ -4,7 +4,7 @@ import { gql, useMutation } from "@apollo/client"
 import { useEffect, useState } from "react"
 import { useRouter } from 'next/navigation'
 
-const Login = () => {
+const LoginGQL = () => {
   const router = useRouter();
   const [inputValues, setInputValues] = useState({ email: "", password: "" });
 
@@ -29,13 +29,14 @@ const Login = () => {
 
   useEffect(() => {
     if (data) {
-      router.push('/')
+      router.replace('/')
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data])
 
   return (
     <div>
-      <h1>Login</h1>
+      <h1>Login GQL</h1>
       <form onSubmit={(e) => {
         e.preventDefault();
         login();
@@ -49,4 +50,4 @@ const Login = () => {
   )
 }
 
-export default Login
+export default LoginGQL

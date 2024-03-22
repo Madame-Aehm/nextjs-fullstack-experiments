@@ -21,6 +21,14 @@ export type signUpValues = {
   }
 }
 
+export type updatableValues = { 
+  updatableValues: { 
+    email?: string 
+    username?: string 
+    password?: string 
+  }
+}
+
 export type loginValues = {
   loginValues: {
     email: string

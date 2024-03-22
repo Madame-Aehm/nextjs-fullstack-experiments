@@ -1,10 +1,14 @@
-import Login from "@/components/Login"
+import LoginGQL from "@/components/LoginGQL"
+import LoginNextAuth from "@/components/LoginNextAuth";
+import LoginREST from "@/components/LoginREST";
 
 
 const page = () => {
   return (
     <div>
-      <Login />
+      <LoginGQL />
+      <LoginREST />
+      <LoginNextAuth />
     </div>
   )
 }

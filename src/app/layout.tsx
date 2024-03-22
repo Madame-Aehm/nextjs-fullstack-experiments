@@ -1,5 +1,8 @@
 import { ApolloWrapper } from "@/components/ApolloWrapper";
+import SessionWrapper from "@/components/SessionWrapper";
 import type { Metadata } from "next";
+import { getServerSession } from "next-auth";
+import { SessionProvider } from "next-auth/react";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -11,13 +14,15 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
+  const session = await getServerSession();
   return (
     <html lang="en">
       <body>
-        <ApolloWrapper>
-          {children}
-        </ApolloWrapper>
+        <SessionWrapper session={session}>
+          <ApolloWrapper>
+            {children}
+          </ApolloWrapper>
+        </SessionWrapper>
       </body>
     </html>
   );

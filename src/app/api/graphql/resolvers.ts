@@ -1,4 +1,4 @@
-import { loginValues, signUpValues } from "@/@types/user";
+import { loginValues, signUpValues, updatableValues } from "@/@types/user";
 import dbConnect from "@/lib/connectDB";
 import UserModal from "@/models/user";
 import { verifyPassword } from "@/utils/bcrypt";
@@ -6,10 +6,13 @@ import { generateToken } from "@/utils/jwt";
 import { GraphQLError } from "graphql";
 import { MyContext } from "./route";
 import { cookies } from "next/headers";
+import { type Session } from "next-auth";
 
 const resolvers = {
   Query: {
-    users: async () => {
+    users: async (_: undefined, __: {}, contextValue: MyContext ) => {
+      console.log("contextValue", contextValue);
+      // if session is null, i could throw an error here
       try {
         await dbConnect();
         const users = await UserModal.find({});
@@ -36,7 +39,29 @@ const resolvers = {
         return new GraphQLError(message ? message : "Something went wrong");
       }
     },
-    login: async (_: undefined, args: loginValues, contextValue: MyContext) => {
+    updateProfile: async (_: undefined, args: updatableValues, contextValue: MyContext) => {
+      console.log(contextValue)
+      if (!contextValue.session?.user) {
+        return new GraphQLError("You must be logged in to do this");
+      }
+      try {
+        const updatedUser = await UserModal.findOneAndUpdate(
+          { email: contextValue.session.user.email }, 
+          { ...args.updatableValues },
+          { new: true }
+        );
+        if (!updatedUser) {
+          return new GraphQLError("User couldn't be updated");
+        }
+        // find a way to refresh session 
+        return updatedUser
+      } catch (error) {
+        console.log(error);
+        let { message } = error as Error
+        return new GraphQLError(message ? message : "Something went wrong");
+      }
+    },
+    login: async (_: undefined, args: loginValues) => {
       try {
         await dbConnect();
         const user = await UserModal.findOne({ email: args.loginValues.email });

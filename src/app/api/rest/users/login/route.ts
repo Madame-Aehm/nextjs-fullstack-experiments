@@ -2,6 +2,7 @@ import dbConnect from "@/lib/connectDB";
 import UserModal from "@/models/user";
 import { verifyPassword } from "@/utils/bcrypt";
 import { generateToken } from "@/utils/jwt";
+import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -20,8 +21,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Password doesn't match" }, { status: 405 });
     }
     const token = generateToken(user);
-    return NextResponse.json(user, { status: 200, headers: { "Set-Cookie": `token=${token}` } });
+    cookies().set("token", token);
+    return NextResponse.json(user, { status: 200 });
   } catch (error) {
-    return NextResponse.error();
+    return NextResponse.json({ error: "Server Error" }, { status: 500 });
   }
 }
