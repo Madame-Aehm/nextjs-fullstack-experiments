@@ -2,7 +2,6 @@
 
 import { useState } from "react"
 import { useRouter } from 'next/navigation'
-import { User } from "@/@types/user"
 import { signIn } from "next-auth/react"
 
 const LoginNextAuth = () => {
@@ -39,6 +38,15 @@ const LoginNextAuth = () => {
     }
   }
 
+  const handleGoogleAuth = async() => {
+    try {
+      const result = await signIn("google");
+      console.log("we did it", result);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   return (
     <div>
       <h1>Login Next-Auth</h1>
@@ -50,6 +58,7 @@ const LoginNextAuth = () => {
         <input type="password" placeholder="password" onChange={(e) => setInputValues({ ...inputValues, password: e.target.value })} />
         { loading ? <button>Loading...</button> : <button type="submit">Login</button> }
       </form>
+      <button style={{ margin: "1rem" }} onClick={() => handleGoogleAuth()}>Login with Google</button>
       { error && <small style={{ color: "red" }}>{ error }</small> }
     </div>
   )

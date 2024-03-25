@@ -6,19 +6,32 @@ import { generateToken } from "@/utils/jwt";
 import { GraphQLError } from "graphql";
 import { MyContext } from "./route";
 import { cookies } from "next/headers";
-import { type Session } from "next-auth";
+
 
 const resolvers = {
   Query: {
     users: async (_: undefined, __: {}, contextValue: MyContext ) => {
-      console.log("contextValue", contextValue);
-      // if session is null, i could throw an error here
       try {
         await dbConnect();
         const users = await UserModal.find({});
         return users
       } catch (error) {
         console.log(error);
+        const { message } = error as Error
+        return new GraphQLError(message ? message : "Something went wrong");
+      }
+    },
+    getMe: async (_: undefined, __: {}, contextValue: MyContext) => {
+      if (!contextValue.session?.user) {
+        return new GraphQLError("You must be logged in to do this");
+      }
+      try {
+        const user = await UserModal.findOne({ email: contextValue.session.user.email });
+        return user
+      } catch (error) {
+        console.log(error);
+        const { message } = error as Error
+        return new GraphQLError(message ? message : "Something went wrong");
       }
     }
   },
@@ -26,12 +39,13 @@ const resolvers = {
     signUp: async (_: undefined, args: signUpValues) => {
       try {
         await dbConnect();
-        const newUser = await UserModal.create(args.signUpValues);
+        const newUser = await UserModal.create({ ...args.signUpValues, authType: "credentials" });
         if (!newUser) {
           return new GraphQLError("User couldn't be created");
         }
-        const token = generateToken(newUser);
-        return { token, user: newUser }
+        // const token = generateToken(newUser);
+        // return { token, user: newUser }
+        return newUser
       } catch (error) {
         console.log(error);
         let { message } = error as Error
@@ -57,7 +71,7 @@ const resolvers = {
         return updatedUser
       } catch (error) {
         console.log(error);
-        let { message } = error as Error
+        const { message } = error as Error
         return new GraphQLError(message ? message : "Something went wrong");
       }
     },
@@ -77,7 +91,7 @@ const resolvers = {
         return user
       } catch (error) {
         console.log(error);
-        let { message } = error as Error
+        const { message } = error as Error
         return new GraphQLError(message ? message : "Something went wrong");
       }
     }

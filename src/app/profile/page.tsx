@@ -1,16 +1,15 @@
-import Profile from '@/components/Profile';
+import ProfileCC from '@/components/ProfileCC';
 import { getServerSession } from 'next-auth'
 import { redirect } from 'next/navigation';
 import React from 'react'
 
 const page = async() => {
   const session = await getServerSession();
-  // if (!session) redirect("/login");
-  console.log(session)
+  if (!session) redirect("/login");
+
   return (
     <div>
-      testing profile
-      {/* <Profile session={session} /> */}
+      <ProfileCC />
     </div>
   )
 }

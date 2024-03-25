@@ -1,8 +1,11 @@
 import { ApolloWrapper } from "@/components/ApolloWrapper";
+import NavBar from "@/components/NavBar";
 import SessionWrapper from "@/components/SessionWrapper";
+import { UserContextProvider } from "@/components/UserContext";
 import type { Metadata } from "next";
 import { getServerSession } from "next-auth";
 import { SessionProvider } from "next-auth/react";
+import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -20,7 +23,10 @@ export default async function RootLayout({
       <body>
         <SessionWrapper session={session}>
           <ApolloWrapper>
-            {children}
+            <UserContextProvider>
+              <NavBar />
+              {children}
+            </UserContextProvider>
           </ApolloWrapper>
         </SessionWrapper>
       </body>

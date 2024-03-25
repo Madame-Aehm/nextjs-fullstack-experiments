@@ -1,6 +1,7 @@
 const typeDefs = `#graphql
   type Query {
     users: [User]
+    getMe: User
   }
   type Mutation {
     signUp(signUpValues: signUpValues!): User
@@ -15,7 +16,6 @@ const typeDefs = `#graphql
   input updatableValues {
     email: String
     username: String
-    password: String
   }
   input loginValues {
     email: String!

@@ -5,6 +5,8 @@ export type ContextUser = {
   username: string
   _id: string
   password: string
+  authType: string
+  picture: string
   pets: string[]
 }
 export type User = {
