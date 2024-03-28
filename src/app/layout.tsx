@@ -23,10 +23,10 @@ export default async function RootLayout({
       <body>
         <SessionWrapper session={session}>
           <ApolloWrapper>
-            <UserContextProvider>
+            {/* <UserContextProvider> */}
               <NavBar />
               {children}
-            </UserContextProvider>
+            {/* </UserContextProvider> */}
           </ApolloWrapper>
         </SessionWrapper>
       </body>

@@ -6,7 +6,6 @@ import GoogleProvider, { GoogleProfile } from "next-auth/providers/google";
 import dbConnect from "@/lib/connectDB";
 import UserModal from "@/models/user";
 import { verifyPassword } from "@/utils/bcrypt";
-import { ContextUser } from "@/@types/user";
 
 export const authOptions: any = {
   // Configure one or more authentication providers
@@ -52,6 +51,9 @@ export const authOptions: any = {
     // ...add more providers here
   ],
   callbacks: {
+    async update(params: any) {
+      console.log("params when calling update", params);
+    },
     async signIn({ user, account, profile }: { user: AuthUser, account: Account, profile: GoogleProfile }) {
       // console.log("what is user", user);
       // console.log("what is account", account);

@@ -39,6 +39,7 @@ const LoginGQL = () => {
       <h1>Login GQL</h1>
       <form onSubmit={(e) => {
         e.preventDefault();
+        //validation
         login();
       }}>
         <input type="email" placeholder="email" onChange={(e) => setInputValues({ ...inputValues, email: e.target.value })} />

@@ -16,6 +16,7 @@ const typeDefs = `#graphql
   input updatableValues {
     email: String
     username: String
+    picture: String
   }
   input loginValues {
     email: String!
@@ -24,7 +25,12 @@ const typeDefs = `#graphql
   type User {
     email: String!
     username: String!
+    picture: Picture
     _id: String!
+  }
+  type Picture {
+    url: String!
+    public_id: String
   }
   type AuthenticatedUser {
     token: String!

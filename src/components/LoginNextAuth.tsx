@@ -3,9 +3,11 @@
 import { useState } from "react"
 import { useRouter } from 'next/navigation'
 import { signIn } from "next-auth/react"
+import useGetActiveUser from "./useGetActiveUser"
 
 const LoginNextAuth = () => {
   const router = useRouter();
+  const { refetch } = useGetActiveUser();
   const [inputValues, setInputValues] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -30,6 +32,7 @@ const LoginNextAuth = () => {
         setLoading(false);
         return
       }
+      refetch();
       router.replace("/");
     } catch (error) {
       const { message } = error as Error;
@@ -41,6 +44,7 @@ const LoginNextAuth = () => {
   const handleGoogleAuth = async() => {
     try {
       const result = await signIn("google");
+      refetch();
       console.log("we did it", result);
     } catch (error) {
       console.log(error);

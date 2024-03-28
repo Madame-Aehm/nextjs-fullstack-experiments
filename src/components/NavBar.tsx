@@ -1,12 +1,12 @@
 'use client'
 import Link from 'next/link'
 import React from 'react'
-import { useAuth } from './UserContext'
 import { signOut } from 'next-auth/react'
+import useGetActiveUser from './useGetActiveUser'
 
 const NavBar = () => {
-  const { user } = useAuth();
-  console.log(user)
+  const { user } = useGetActiveUser();
+
   return (
     <div style={{ display: "flex", gap: "1rem" }}>
       <Link href={"/"}>Home</Link>

@@ -8,7 +8,12 @@ const schema = new mongoose.Schema<ContextUser>({
   password: { type: String, required: function() {
     return this.authType === "credentials"
   }},
-  picture: { type: String, default: "/defaultProfile.png" }
+  picture: { 
+    url: { type: String, default: "/defaultProfile.png" },
+    public_id: { type: String, required: function() { 
+      return this.picture.url !== "/defaultProfile.png"
+     } }
+   }
 });
 
 const UserModal = mongoose.models.user || mongoose.model<ContextUser>("user", schema);

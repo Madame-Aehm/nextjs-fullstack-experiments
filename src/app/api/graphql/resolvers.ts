@@ -1,4 +1,4 @@
-import { loginValues, signUpValues, updatableValues } from "@/@types/user";
+import { User, loginValues, signUpValues, updatableValues } from "@/@types/user";
 import dbConnect from "@/lib/connectDB";
 import UserModal from "@/models/user";
 import { verifyPassword } from "@/utils/bcrypt";
@@ -6,6 +6,7 @@ import { generateToken } from "@/utils/jwt";
 import { GraphQLError } from "graphql";
 import { MyContext } from "./route";
 import { cookies } from "next/headers";
+import cloudinary from "@/config/cloudinary";
 
 
 const resolvers = {
@@ -22,6 +23,7 @@ const resolvers = {
       }
     },
     getMe: async (_: undefined, __: {}, contextValue: MyContext) => {
+      console.log(contextValue)
       if (!contextValue.session?.user) {
         return new GraphQLError("You must be logged in to do this");
       }
@@ -54,20 +56,43 @@ const resolvers = {
       }
     },
     updateProfile: async (_: undefined, args: updatableValues, contextValue: MyContext) => {
-      console.log(contextValue)
       if (!contextValue.session?.user) {
         return new GraphQLError("You must be logged in to do this");
       }
+      const { email, username, picture } = args.updatableValues;
+      if (!email) {
+        return new GraphQLError("Email can't be empty");
+      }
+      if (!username) {
+        return new GraphQLError("Username can't be empty");
+      }
       try {
+        const user = await UserModal.findOne({ email: contextValue.session.user.email }) as User;
+
+        if (email !== user.email && user.authType !== "credentials") {
+          return new GraphQLError(`Cannot overwrite email from ${user.authType} account`);
+        }
+
+        const newPicture = { ...user.picture };
+        if (picture.includes("data:image/jpeg;base64,")) {
+          const uploaded = await cloudinary.uploader.upload(picture, { folder: "travelbuddy" });
+          if (user.picture.public_id) await cloudinary.uploader.destroy(user.picture.public_id);
+          newPicture.url = uploaded.secure_url;
+          newPicture.public_id = uploaded.public_id;
+        }
+
         const updatedUser = await UserModal.findOneAndUpdate(
           { email: contextValue.session.user.email }, 
-          { ...args.updatableValues },
+          { 
+            email,
+            username,
+            picture: newPicture
+          },
           { new: true }
         );
         if (!updatedUser) {
           return new GraphQLError("User couldn't be updated");
         }
-        // find a way to refresh session 
         return updatedUser
       } catch (error) {
         console.log(error);
