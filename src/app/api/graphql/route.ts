@@ -3,7 +3,6 @@ import { ApolloServer } from '@apollo/server';
 import resolvers from './resolvers';
 import typeDefs from './typedefs';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '../auth/[...nextauth]/route';
 
 export type MyContext = {
   session: mySession
@@ -22,7 +21,7 @@ const server = new ApolloServer<MyContext>({
 
 const handler = startServerAndCreateNextHandler(server, {
   context: async () => {
-    const session = await getServerSession(authOptions) as mySession;
+    const session = await getServerSession() as mySession;
     return { session }
   },
 });

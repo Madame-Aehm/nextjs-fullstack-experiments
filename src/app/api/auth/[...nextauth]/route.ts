@@ -1,5 +1,5 @@
-import NextAuth, { Profile } from "next-auth";
-import { Account, User as AuthUser } from "next-auth";
+import NextAuth, { NextAuthOptions } from "next-auth";
+// import { Account, User as AuthUser } from "next-auth";
 import GithubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider, { GoogleProfile } from "next-auth/providers/google";
@@ -7,7 +7,7 @@ import dbConnect from "@/lib/connectDB";
 import UserModal from "@/models/user";
 import { verifyPassword } from "@/utils/bcrypt";
 
-export const authOptions: any = {
+const authOptions: NextAuthOptions = {
   // Configure one or more authentication providers
   providers: [
     CredentialsProvider({
@@ -28,8 +28,9 @@ export const authOptions: any = {
             }
           }
           return null
-        } catch (err: any) {
-          throw new Error(err);
+        } catch (err) {
+          console.log(err);
+          throw new Error("auth failed");
         }
       },
     }),
@@ -51,18 +52,25 @@ export const authOptions: any = {
     // ...add more providers here
   ],
   callbacks: {
-    async update(params: any) {
-      console.log("params when calling update", params);
+    // async update(params: any) {
+    //   console.log("params when calling update", params);
+    // },
+    async jwt({ token, trigger, session }) {
+      console.log("from jwt callback", token, trigger, session);
+      if (trigger === "update") {
+        token.email = session.email
+      }
+      return token
     },
-    async signIn({ user, account, profile }: { user: AuthUser, account: Account, profile: GoogleProfile }) {
-      // console.log("what is user", user);
-      // console.log("what is account", account);
-      console.log("what is profile", profile);
+    async signIn({ account, profile }) {
+      if (!account) return false;
       if (account?.provider == "credentials") {
         return true;
       }
-      if (account.provider === "google") {
-        console.log("we are here")
+      if (account?.provider === "google") {
+        if (!profile) return false
+        console.log("what is profile", profile);
+        const { picture } = profile as GoogleProfile
         try {
           await dbConnect();
           const existingUser = await UserModal.findOne({ email: profile.email });
@@ -70,7 +78,9 @@ export const authOptions: any = {
             await UserModal.create({ 
               email: profile.email, 
               username: profile.name, 
-              picture: profile.picture, 
+              picture: {
+                url: picture, 
+              },
               authType: "google" 
             });
             return true
@@ -92,5 +102,5 @@ export const authOptions: any = {
   },
 };
 
-export const handler = NextAuth(authOptions);
+const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };

@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 'use client'
 
 import { ChangeEvent, useState } from "react";
@@ -67,19 +68,19 @@ const ProfileCC = ({ currentUser }: Props) => {
   });
 
   const handleUpdate = async() => {
-    console.log("submitting", inputValues);
     if (!inputValues.email || !inputValues.username) return alert("Fields can't be empty");
     if ((inputValues.email !== currentUser.email) && (currentUser.authType !== "credentials")) {
       return alert(`You can't update the email of a ${currentUser.authType} account`);
     }
     try {
+      console.log("submitting", inputValues);
       const result = await updateUser();
       console.log("result from handleUpdate", result);
-      // if (currentUser.email !== result.data?.updateProfile.email) update({ email: result.data?.updateProfile.email });
-      if (currentUser.email !== result.data?.updateProfile.email) await update({ email: result.data?.updateProfile.email });
+      // if (currentUser.email !== result.data?.updateProfile.email) await update({ email: result.data?.updateProfile.email });
       // still can't get session to update with new email address...................................................
       console.log(result);
-      refetch();
+      await update({ email: result.data.updateProfile.email })
+      await refetch();
     } catch (error) {
       console.log(error);
       alert("user couldn't be updated");
@@ -90,14 +91,12 @@ const ProfileCC = ({ currentUser }: Props) => {
     <div>
       <h1>Profile Client Component</h1>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem" }}>
-        <Image 
+        <img 
           src={inputValues.picture.url ? inputValues.picture.url : currentUser.picture.url} 
           alt="My profile picture" 
-          height={150} 
-          width={150} 
-          priority />
+          style={{ height: "150px", width: "150px" }} />
         <input type="file" name="picture" onChange={handleImageChange} />
-        <input type="email" name="email" value={inputValues.email} onChange={handleChange} />
+        <input type="email" name="email" value={inputValues.email} onChange={handleChange} disabled={currentUser.authType === "credentials" ? false : true } />
         <input name="username" value={inputValues.username} onChange={handleChange} />
         <button onClick={() => handleUpdate()}>{ loading ? "loading.." : "Save" }</button>
       </div>

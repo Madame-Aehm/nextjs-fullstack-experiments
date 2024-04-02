@@ -1,15 +1,5 @@
 import { ObjectId } from "mongoose"
 
-// export type ContextUser = {
-//   email: string
-//   username: string
-//   _id: string
-//   password: string
-//   authType: string
-//   picture: string
-//   pets: string[]
-// }
-
 export type User = {
   email: string
   username: string

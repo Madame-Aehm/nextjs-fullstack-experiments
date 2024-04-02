@@ -21,13 +21,16 @@ const useGetActiveUser = () => {
     }
   }`
 
+  // let first = true;
+
   const { data, refetch } = useQuery<getMeRes>(getMeQuery);
 
   // useEffect(() => {
-  //   if ((session.data?.user.email && data?.getMe?.email) && (data?.getMe?.email !== session.data?.user.email)) {
-  //     signOut();
+  //   if (!first) {
+  //     if (session.status === "authenticated" && !data) signOut();
   //   }
-  // }, [session.data?.user.email, data?.getMe?.email])
+  //   first = false;
+  // }, [data?.getMe?.email])
 
   return { user: data?.getMe || null, refetch }
 }

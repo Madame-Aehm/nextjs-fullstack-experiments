@@ -23,7 +23,7 @@ const resolvers = {
       }
     },
     getMe: async (_: undefined, __: {}, contextValue: MyContext) => {
-      console.log(contextValue)
+      console.log("getMe", contextValue)
       if (!contextValue.session?.user) {
         return new GraphQLError("You must be logged in to do this");
       }
@@ -60,15 +60,12 @@ const resolvers = {
         return new GraphQLError("You must be logged in to do this");
       }
       const { email, username, picture } = args.updatableValues;
-      if (!email) {
-        return new GraphQLError("Email can't be empty");
-      }
-      if (!username) {
-        return new GraphQLError("Username can't be empty");
+      if (!email || !username) {
+        return new GraphQLError("Email and/or Username can't be empty");
       }
       try {
-        const user = await UserModal.findOne({ email: contextValue.session.user.email }) as User;
-
+        const user = await UserModal.findOne({ email: contextValue.session.user.email });
+        if (!user) new GraphQLError("No user could be found...");
         if (email !== user.email && user.authType !== "credentials") {
           return new GraphQLError(`Cannot overwrite email from ${user.authType} account`);
         }
@@ -80,20 +77,14 @@ const resolvers = {
           newPicture.url = uploaded.secure_url;
           newPicture.public_id = uploaded.public_id;
         }
+        
+        user.email = email;
+        user.username = username;
+        user.picture = newPicture;
 
-        const updatedUser = await UserModal.findOneAndUpdate(
-          { email: contextValue.session.user.email }, 
-          { 
-            email,
-            username,
-            picture: newPicture
-          },
-          { new: true }
-        );
-        if (!updatedUser) {
-          return new GraphQLError("User couldn't be updated");
-        }
-        return updatedUser
+        await user.save();
+
+        return user
       } catch (error) {
         console.log(error);
         const { message } = error as Error
