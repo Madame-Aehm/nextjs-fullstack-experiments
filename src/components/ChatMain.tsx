@@ -34,7 +34,7 @@ const Chat = ({ user, otherUsers }: Props) => {
 
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 3fr" }}>
+    <div style={{ display: "grid", gridTemplateColumns: "0.5fr 3fr" }}>
       <div style={{ display: "flex", flexDirection: "column" }}>
         { otherUsers.map((user) => {
           return (

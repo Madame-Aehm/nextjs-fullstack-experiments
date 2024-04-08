@@ -29,7 +29,7 @@ const resolvers = {
     messages: async (_: undefined, args: { chatId: string }, contextValue: MyContext) => {
       try {
         await dbConnect();
-        const messages = MessageModal.find({ chatId: args.chatId }).sort({ createdAt: -1 });
+        const messages = MessageModal.find({ chatId: args.chatId }).sort({ createdAt: 1 });
         return messages;
       } catch (error) {
         console.log(error);
@@ -66,7 +66,7 @@ const resolvers = {
   },
   Mutation: {
     sendMessage: async(_: undefined, args: messageValuesType) => {
-      console.log(args);
+      console.log("send message mutation", args);
       try {
         await dbConnect();
         await MessageModal.create(args.messageValues);

@@ -52,11 +52,8 @@ const authOptions: NextAuthOptions = {
     // ...add more providers here
   ],
   callbacks: {
-    // async update(params: any) {
-    //   console.log("params when calling update", params);
-    // },
     async jwt({ token, trigger, session }) {
-      console.log("from jwt callback", token, trigger, session);
+      // console.log("from jwt callback", token, trigger, session);
       if (trigger === "update") {
         token.email = session.email
       }

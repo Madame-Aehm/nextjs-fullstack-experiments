@@ -17,7 +17,7 @@ const server = new ApolloServer<MyContext>({
 const handler = startServerAndCreateNextHandler(server, {
   context: async () => {
     const session = await getServerSession() as Session;
-    console.log("from context", session)
+    // console.log("from context", session)
     return { session: session }
   },
 });
