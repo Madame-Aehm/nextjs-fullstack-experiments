@@ -1,4 +1,4 @@
-import { User, loginValues, signUpValues, updatableValues } from "@/@types/user";
+import { loginValues, signUpValues, updatableValues } from "@/@types/user";
 import dbConnect from "@/lib/connectDB";
 import UserModal from "@/models/user";
 import { verifyPassword } from "@/utils/bcrypt";
@@ -7,10 +7,36 @@ import { GraphQLError } from "graphql";
 import { MyContext } from "./route";
 import { cookies } from "next/headers";
 import cloudinary from "@/config/cloudinary";
+import { SavedMessage, messageValuesType } from "@/@types/message";
+import MessageModal from "@/models/message";
 
 
 const resolvers = {
+  Message: {
+    sent: async(parent: SavedMessage) => {
+      try {
+        await dbConnect();
+        const user = UserModal.findById(parent.sent).select("-password");
+        return user
+      } catch (error) {
+        console.log(error);
+        const { message } = error as Error
+        return new GraphQLError(message ? message : "Something went wrong");
+      }
+    }
+  },
   Query: {
+    messages: async (_: undefined, args: { chatId: string }, contextValue: MyContext) => {
+      try {
+        await dbConnect();
+        const messages = MessageModal.find({ chatId: args.chatId }).sort({ createdAt: 1 });
+        return messages;
+      } catch (error) {
+        console.log(error);
+        const { message } = error as Error
+        return new GraphQLError(message ? message : "Something went wrong");
+      }
+    },
     users: async (_: undefined, __: {}, contextValue: MyContext ) => {
       try {
         await dbConnect();
@@ -28,6 +54,7 @@ const resolvers = {
         return new GraphQLError("You must be logged in to do this");
       }
       try {
+        await dbConnect();
         const user = await UserModal.findOne({ email: contextValue.session.user.email });
         return user
       } catch (error) {
@@ -38,6 +65,17 @@ const resolvers = {
     }
   },
   Mutation: {
+    sendMessage: async(_: undefined, args: messageValuesType) => {
+      try {
+        await dbConnect();
+        const message = await MessageModal.create(args.messageValues);
+        return message
+      } catch (error) {
+        console.log(error);
+        const { message } = error as Error
+        return new GraphQLError(message ? message : "Something went wrong");
+      }
+    },
     signUp: async (_: undefined, args: signUpValues) => {
       try {
         await dbConnect();

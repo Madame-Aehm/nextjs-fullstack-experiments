@@ -3,17 +3,12 @@ import { ApolloServer } from '@apollo/server';
 import resolvers from './resolvers';
 import typeDefs from './typedefs';
 import { getServerSession } from 'next-auth';
+import { Session } from 'next-auth';
 
 export type MyContext = {
-  session: mySession
+  session: Session | null
 }
 
-type mySession = null | {
-  user: {
-    email: string
-    id: string
-  }
-}
 const server = new ApolloServer<MyContext>({
   resolvers,
   typeDefs,
@@ -21,8 +16,9 @@ const server = new ApolloServer<MyContext>({
 
 const handler = startServerAndCreateNextHandler(server, {
   context: async () => {
-    const session = await getServerSession() as mySession;
-    return { session }
+    const session = await getServerSession() as Session;
+    // console.log("from context", session)
+    return { session: session }
   },
 });
 

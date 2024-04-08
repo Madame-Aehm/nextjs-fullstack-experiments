@@ -2,6 +2,8 @@ import { ApolloWrapper } from "@/components/ApolloWrapper";
 import NavBar from "@/components/NavBar";
 import SessionWrapper from "@/components/SessionWrapper";
 import { UserContextProvider } from "@/components/UserContext";
+import dbConnect from "@/lib/connectDB";
+import UserModal from "@/models/user";
 import type { Metadata } from "next";
 import { getServerSession } from "next-auth";
 import { SessionProvider } from "next-auth/react";
@@ -18,13 +20,19 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const session = await getServerSession();
+  let user = null;
+  if (session) {
+    await dbConnect();
+    user = await UserModal.findOne({ email: session.user.email }) || null;
+  }
+
   return (
     <html lang="en">
       <body>
         <SessionWrapper session={session}>
           <ApolloWrapper>
             {/* <UserContextProvider> */}
-              <NavBar />
+              <NavBar user={JSON.parse(JSON.stringify(user))} />
               {children}
             {/* </UserContextProvider> */}
           </ApolloWrapper>

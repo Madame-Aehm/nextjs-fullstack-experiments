@@ -3,15 +3,21 @@ import Link from 'next/link'
 import React from 'react'
 import { signOut } from 'next-auth/react'
 import useGetActiveUser from './useGetActiveUser'
+import { User } from '@/@types/user'
 
-const NavBar = () => {
-  const { user } = useGetActiveUser();
+type Props = {
+  user: User
+}
+
+const NavBar = ({ user }: Props) => {
+  // const { user } = useGetActiveUser();
 
   return (
     <div style={{ display: "flex", gap: "1rem" }}>
       <Link href={"/"}>Home</Link>
       <Link href={"/api/graphql"}>GraphQL Explorer</Link>
       { user ? <>
+        <Link href={"/chat"}>Chat</Link>
         <Link href={"/profile"}>Profile</Link>
         <button onClick={() => signOut()}>Logout</button>
       </> : <>
