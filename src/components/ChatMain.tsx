@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react'
 import { socket } from '@/lib/socket'
 import ChatMessages from './ChatMessages'
 import { generateChatRoomId } from '@/utils/generateRoomId'
-import { gql, useQuery } from '@apollo/client'
 
 
 type Props = {
@@ -17,10 +16,10 @@ const Chat = ({ user, otherUsers }: Props) => {
   const [chatWithUser, setChatWithUser] = useState<null | User>(null);
 
   const handleJoin = (otherUser: User) => {
-    const idsCombined = generateChatRoomId(user._id.toString(), otherUser._id.toString());
     if (chatWithUser) {
       socket.emit("leave_room", generateChatRoomId(user._id.toString(), chatWithUser._id.toString()))
     }
+    const idsCombined = generateChatRoomId(user._id.toString(), otherUser._id.toString());
     socket.emit("join_room", idsCombined);
     setChatWithUser(otherUser);
   };

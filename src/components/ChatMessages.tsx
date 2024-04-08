@@ -16,13 +16,20 @@ interface IMsgDataTypes {
   chatId: string;
   sent: string;
   message: string;
-  createdAt?: string
+}
+
+interface MessageType {
+  _id: string
+  chatId: string
+  sent: User
+  message: string
+  createdAt: string
 }
 
 const ChatMessages = ({ socket, me, otherUser }:Props) => {
 
   const chatId = generateChatRoomId(me._id.toString(), otherUser._id.toString());
-  const [inputValue, setInputValue] = useState('')
+  const [inputValue, setInputValue] = useState('');
 
   const GETMESSAGES = gql`
     query Query($chatId: String!) {
@@ -44,14 +51,28 @@ const ChatMessages = ({ socket, me, otherUser }:Props) => {
       chatId
     }
   });
-  const messages = data?.messages;
+  const [messages, setMessages] = useState([]);
+
+  useEffect(() => {
+    if (data?.messages) setMessages(data.messages);
+  }, [data]);
+
 
   const SENDMESSAGE = gql`
     mutation sendMessage($messageValues: messageValues!) {
-      sendMessage(messageValues: $messageValues)
+      sendMessage(messageValues: $messageValues) {
+        _id
+        chatId
+        sent {
+          _id
+          email
+        }
+        message
+        createdAt
+      }
     }
   `
-  const [sendMessage, { data: msgData, loading: msgLoading, error: msgError }] = useMutation(SENDMESSAGE, {
+  const [sendMessage, { loading: msgLoading, error: msgError }] = useMutation<{ sendMessage: MessageType }>(SENDMESSAGE, {
     variables: {
       messageValues: {
         chatId,
@@ -66,33 +87,32 @@ const ChatMessages = ({ socket, me, otherUser }:Props) => {
     //TODO why is message value not saving to db
     console.log("would send this", inputValue)
     if (inputValue) {
-      await sendMessage();
-      const msgData: IMsgDataTypes = {
-        chatId,
-        sent: me._id.toString(),
-        message: inputValue,
-      };
-      // socket.emit("send_msg", msgData);
-      setInputValue("");
-      refetchMessages();
+      const result = await sendMessage();
+      if (result.data?.sendMessage) {
+        console.log("result from API", result);
+        socket.emit("send_msg", result.data.sendMessage);
+        setMessages((prev) => [...prev, result.data.sendMessage]);
+        setInputValue("");
+      }
+      // refetchMessages();
     }
   };
 
 
-  // useEffect(() => {
-  //   socket.on("receive_msg", (data: IMsgDataTypes) => {
-  //     console.log(data);
-  //     // setMessages((prev) => [...prev, data]);
-  //   });
-  // }, [socket]);
-
   useEffect(() => {
-    const fetchMessagesInterval = setInterval(async() => {
-      await refetchMessages();
-    }, 2000);
+    socket.on("receive_msg", (data: MessageType) => {
+      console.log("result from socket", data);
+      setMessages((prev) => [...prev, data]);
+    });
+  }, [socket]);
 
-    return () => clearInterval(fetchMessagesInterval);
-  }, [])
+  // useEffect(() => {
+  //   const fetchMessagesInterval = setInterval(async() => {
+  //     await refetchMessages();
+  //   }, 2000);
+
+  //   return () => clearInterval(fetchMessagesInterval);
+  // }, [])
 
   if (loading) return <p>Loading....</p>
   return (
@@ -107,12 +127,12 @@ const ChatMessages = ({ socket, me, otherUser }:Props) => {
       <h1>You are chatting with { otherUser.username }</h1>
       <hr style={{ width: "100%" }}></hr>
       <div style={{ height: "56vh", overflow: "auto", display: "flex", flexDirection: "column", gap: "1rem", paddingBottom: "1rem" }}>
-        { messages && messages.map((msg, i) => (
-          <div
+        { messages && messages.map((msg, i) => {
+          return <div
             key={`msg${i}`}
             style={{ 
               textAlign: msg.sent._id == me._id ? "right" : "left", 
-              alignSelf:  msg.sent._id == me._id ? "flex-start" : "flex-end",
+              alignSelf:  msg.sent._id == me._id ? "flex-end" : "flex-start",
               padding: "0.5rem", 
               border: "solid black 1px", 
               borderRadius: "0.5rem", 
@@ -126,7 +146,7 @@ const ChatMessages = ({ socket, me, otherUser }:Props) => {
               { msg.message }
             </div>
           </div>
-        ))}
+        })}
       </div>
       <hr style={{ width: "100%" }}></hr>
         <div style={{ textAlign: "center" }}>
@@ -138,7 +158,7 @@ const ChatMessages = ({ socket, me, otherUser }:Props) => {
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
             />
-            <button type="submit">Send</button>
+            <button type="submit">{ msgLoading ? "Sending..." : "Send" }</button>
           </form>
           { msgError?.message || error?.message && <p style={{ color: "red" }}>{ msgError.message }{ error.message }</p> }
         </div>

@@ -37,7 +37,7 @@ io.on("connection", (socket) => {
     console.log("DATA", data);
     //This will send a message to a specific room ID
     try {
-      socket.to(data.roomId).emit("receive_msg", data);
+      socket.to(data.chatId).emit("receive_msg", data);
     } catch (error) {
       console.log(error);
     }

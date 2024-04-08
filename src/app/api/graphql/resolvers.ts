@@ -66,11 +66,10 @@ const resolvers = {
   },
   Mutation: {
     sendMessage: async(_: undefined, args: messageValuesType) => {
-      console.log("send message mutation", args);
       try {
         await dbConnect();
-        await MessageModal.create(args.messageValues);
-        return "success"
+        const message = await MessageModal.create(args.messageValues);
+        return message
       } catch (error) {
         console.log(error);
         const { message } = error as Error

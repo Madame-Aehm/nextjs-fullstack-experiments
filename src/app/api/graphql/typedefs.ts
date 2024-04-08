@@ -8,7 +8,7 @@ const typeDefs = `#graphql
     signUp(signUpValues: signUpValues!): User
     updateProfile(updatableValues: updatableValues!): User
     login(loginValues: loginValues!): User
-    sendMessage(messageValues: messageValues!): String
+    sendMessage(messageValues: messageValues!): Message
   }
   type User {
     email: String!
