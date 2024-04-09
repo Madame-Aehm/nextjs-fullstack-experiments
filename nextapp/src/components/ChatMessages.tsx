@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Socket } from "socket.io-client";
 import { User } from "@/@types/user";
 import { generateChatRoomId } from "@/utils/generateRoomId";
@@ -12,12 +12,6 @@ type Props =  {
   otherUser: User
 }
 
-interface IMsgDataTypes {
-  chatId: string;
-  sent: string;
-  message: string;
-}
-
 interface MessageType {
   _id: string
   chatId: string
@@ -27,7 +21,7 @@ interface MessageType {
 }
 
 const ChatMessages = ({ socket, me, otherUser }:Props) => {
-
+  const [messages, setMessages] = useState([]);
   const chatId = generateChatRoomId(me._id.toString(), otherUser._id.toString());
   const [inputValue, setInputValue] = useState('');
 
@@ -51,10 +45,11 @@ const ChatMessages = ({ socket, me, otherUser }:Props) => {
       chatId
     }
   });
-  const [messages, setMessages] = useState([]);
 
   useEffect(() => {
-    if (data?.messages) setMessages(data.messages);
+    if (data?.messages && data.messages.length > messages.length) {
+      setMessages(data.messages);
+    };
   }, [data]);
 
 
@@ -66,6 +61,7 @@ const ChatMessages = ({ socket, me, otherUser }:Props) => {
         sent {
           _id
           email
+          username
         }
         message
         createdAt
@@ -84,8 +80,6 @@ const ChatMessages = ({ socket, me, otherUser }:Props) => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    //TODO why is message value not saving to db
-    console.log("would send this", inputValue)
     if (inputValue) {
       const result = await sendMessage();
       if (result.data?.sendMessage) {
@@ -104,7 +98,7 @@ const ChatMessages = ({ socket, me, otherUser }:Props) => {
       console.log("result from socket", data);
       setMessages((prev) => [...prev, data]);
     });
-  }, [socket]);
+  }, []);
 
   // useEffect(() => {
   //   const fetchMessagesInterval = setInterval(async() => {

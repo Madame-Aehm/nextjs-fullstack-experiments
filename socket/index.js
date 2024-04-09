@@ -1,11 +1,12 @@
 const http = require("http");
 const { Server } = require("socket.io");
+require('dotenv').config()
 
 const httpServer = http.createServer();
 
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:3000", // Replace with your frontend URL
+    origin: process.env.CLIENT,
     methods: ["GET", "POST"],
     allowedHeaders: ["my-custom-header"],
     credentials: true,
@@ -35,8 +36,8 @@ io.on("connection", (socket) => {
 
   socket.on("send_msg", (data) => {
     console.log("DATA", data);
-    //This will send a message to a specific room ID
     try {
+      //This will send a message to a specific room ID
       socket.to(data.chatId).emit("receive_msg", data);
     } catch (error) {
       console.log(error);

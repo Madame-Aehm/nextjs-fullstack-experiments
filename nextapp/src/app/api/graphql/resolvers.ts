@@ -26,7 +26,7 @@ const resolvers = {
     }
   },
   Query: {
-    messages: async (_: undefined, args: { chatId: string }, contextValue: MyContext) => {
+    messages: async (_: undefined, args: { chatId: string, length?: number }, contextValue: MyContext) => {
       try {
         await dbConnect();
         const messages = MessageModal.find({ chatId: args.chatId }).sort({ createdAt: 1 });

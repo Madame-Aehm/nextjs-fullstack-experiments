@@ -5,12 +5,10 @@ import { socket } from '@/lib/socket'
 import ChatMessages from './ChatMessages'
 import { generateChatRoomId } from '@/utils/generateRoomId'
 
-
 type Props = {
   user: User
   otherUsers: User[]
 }
-
 
 const Chat = ({ user, otherUsers }: Props) => {
   const [chatWithUser, setChatWithUser] = useState<null | User>(null);

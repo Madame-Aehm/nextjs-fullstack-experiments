@@ -2,7 +2,7 @@ const typeDefs = `#graphql
   type Query {
     users: [User]
     getMe: User
-    messages(chatId: String!): [Message]
+    messages(chatId: String!, length: Int): [Message]
   }
   type Mutation {
     signUp(signUpValues: signUpValues!): User

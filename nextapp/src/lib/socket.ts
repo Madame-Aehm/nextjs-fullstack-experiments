@@ -5,3 +5,5 @@ const url = "http://localhost:3001"
 export const socket = io(url, {
   autoConnect: false
 });
+
+// export const socket = null;
