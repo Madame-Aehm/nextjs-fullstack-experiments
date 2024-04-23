@@ -11,6 +11,7 @@ type Props = {
 }
 
 const Chat = ({ user, otherUsers }: Props) => {
+  console.log(process.env.NEXT_PUBLIC_SOCKET_URL)
   const [chatWithUser, setChatWithUser] = useState<null | User>(null);
 
   const handleJoin = (otherUser: User) => {
