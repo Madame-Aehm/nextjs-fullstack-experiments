@@ -2,15 +2,11 @@
 import Link from 'next/link'
 import React from 'react'
 import { signOut } from 'next-auth/react'
-import useGetActiveUser from './useGetActiveUser'
-import { User } from '@/@types/user'
+import { useAuth } from './context/UserContext'
 
-type Props = {
-  user: User
-}
 
-const NavBar = ({ user }: Props) => {
-  // const { user } = useGetActiveUser();
+const NavBar = () => {
+  const { user } = useAuth();
 
   return (
     <div style={{ display: "flex", gap: "1rem" }}>

@@ -52,6 +52,10 @@ const authOptions: NextAuthOptions = {
     // ...add more providers here
   ],
   callbacks: {
+    async redirect(params) {
+      console.log("redirect params", params)
+      return params.baseUrl
+    },
     async jwt({ token, trigger, session }) {
       // console.log("from jwt callback", token, trigger, session);
       if (trigger === "update") {

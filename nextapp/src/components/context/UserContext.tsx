@@ -2,10 +2,11 @@
 import { User } from "@/@types/user";
 import { gql, useQuery } from "@apollo/client";
 import { useSession } from "next-auth/react";
-import { PropsWithChildren, createContext, useContext, useEffect, useState } from "react"
+import { PropsWithChildren, SetStateAction, createContext, useContext, useEffect, useState } from "react"
 
 interface UserContext {
   user: User | null
+  setUser: React.Dispatch<SetStateAction<User>>
 }
 
 type getMeRes = {
@@ -29,24 +30,28 @@ export const UserContextProvider = ({ children }: PropsWithChildren) => {
     }
   }`
 
-  const { data, refetch } = useQuery<getMeRes>(getMeQuery);
-  // console.log("session", session, "data", data)
-  // // const user = data?.getMe;
-  // console.log("user on context", user)
-  console.log("context is rendering")
+  const { refetch } = useQuery<getMeRes>(getMeQuery);
 
   useEffect(() => {
-    if (session.status === "authenticated") refetch();
+    if (session.status === "authenticated") {
+      const triggerRefetch = async () => {
+        console.log("refetch triggered")
+        try {
+          const result = await refetch();
+          if (result.data.getMe) {
+            setUser(result.data.getMe);
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      }
+      triggerRefetch();
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session.status])
 
-  useEffect(() => { 
-    if (data?.getMe) setUser(data.getMe);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data?.getMe._id])
 
-
-  return <userContext.Provider value={{ user }}>{ children }</userContext.Provider>
+  return <userContext.Provider value={{ user, setUser }}>{ children }</userContext.Provider>
 }
 
 export const useAuth = () => {

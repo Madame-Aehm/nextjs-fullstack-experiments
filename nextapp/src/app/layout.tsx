@@ -1,7 +1,7 @@
-import { ApolloWrapper } from "@/components/ApolloWrapper";
+import { ApolloWrapper } from "@/components/context/ApolloWrapper";
 import NavBar from "@/components/NavBar";
 import SessionWrapper from "@/components/SessionWrapper";
-import { UserContextProvider } from "@/components/UserContext";
+import { UserContextProvider } from "@/components/context/UserContext";
 import dbConnect from "@/lib/connectDB";
 import UserModal from "@/models/user";
 import type { Metadata } from "next";
@@ -20,21 +20,21 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const session = await getServerSession();
-  let user = null;
-  if (session) {
-    await dbConnect();
-    user = await UserModal.findOne({ email: session.user.email }) || null;
-  }
+  // let user = null;
+  // if (session) {
+  //   await dbConnect();
+  //   user = await UserModal.findOne({ email: session.user.email }) || null;
+  // }
 
   return (
     <html lang="en">
       <body>
         <SessionWrapper session={session}>
           <ApolloWrapper>
-            {/* <UserContextProvider> */}
-              <NavBar user={JSON.parse(JSON.stringify(user))} />
+            <UserContextProvider>
+              <NavBar />
               {children}
-            {/* </UserContextProvider> */}
+            </UserContextProvider>
           </ApolloWrapper>
         </SessionWrapper>
       </body>

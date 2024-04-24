@@ -17,7 +17,6 @@ const LoginNextAuth = () => {
     setError("");
     try {
       const result = await signIn("credentials", {
-        redirect: false,
         email: inputValues.email,
         password: inputValues.password
       })
